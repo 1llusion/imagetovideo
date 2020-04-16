@@ -1,7 +1,7 @@
 from setuptools import setup
 
-setup(name='Image To Video',
-      version='0.1',
+setup(name='imagetovideo',
+      version='0.2.1',
       description='Convert a set of images to a video',
       url='https://github.com/1llusion/imagetovideo',
       author='Christopher Darlington',
@@ -9,6 +9,6 @@ setup(name='Image To Video',
       license='MIT',
       packages=['imagetovideo'],
       install_requires=[
-          'opencv',
+          'opencv-python',
       ],
       zip_safe=False)

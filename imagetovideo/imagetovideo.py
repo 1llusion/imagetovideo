@@ -4,7 +4,8 @@ import os.path
 
 class ImageToVideo(object):
 
-    def convert(self, dir_in, out, prefix="", first_image=0, extension="jpg", fps=30):
+    @staticmethod
+    def convert(dir_in, out, prefix="", first_image=0, extension=".jpg", fps=30, delete_files=False):
         """
         Converts images to avi file. Images should be numbered from 0 in order they should appear in video.
 
@@ -14,6 +15,7 @@ class ImageToVideo(object):
         :int first_image: Number of the first image
         :string extension: Extensions of files (.jpg etc.)
         :int fps: Frames per second to use
+        :bool delete_files: Delete input images?
         :return: True if files have been written. Currently not much error handling is done.
         """
         img_array = []  # Array to hold images.
@@ -22,15 +24,17 @@ class ImageToVideo(object):
 
         # Handle if input is a list
         lst = False
-        if type(input) is list:
+        lst_index = -1
+        if type(prefix) is list:
             lst = True
             lst_index = 0   # Hold the index of prefix.
 
-        filename = self.get_filename(dir_in, prefix, file_num, extension)
+        filename, lst_index = ImageToVideo.get_filename(dir_in, prefix, file_num, extension, lst_index=lst_index)
         if not filename:
             print("First image not found."
                   "\nMake sure all images are numbered and start from ", first_image,
                   "or change 'first_image' parameter.")
+            return False
         img = cv2.imread(filename)
         height, width, layers = img.shape
         size = (width, height)
@@ -39,9 +43,9 @@ class ImageToVideo(object):
         # Writing files
         while file_exists:
             if not lst:
-                filename = self.get_filename(dir_in, prefix, file_num, extension)
+                filename = ImageToVideo.get_filename(dir_in, prefix, file_num, extension)
             else:
-                filename, lst_index = self.get_filename(dir_in, prefix, file_num, extension, lst_index)
+                filename, lst_index = ImageToVideo.get_filename(dir_in, prefix, file_num, extension, lst_index)
 
             # If file does not exist (run out of images to write)
             if not filename:
@@ -50,11 +54,17 @@ class ImageToVideo(object):
 
             img = cv2.imread(filename)
             out.write(img)
+            if delete_files:
+                os.unlink(img)
             print("Wrote image:", filename)
+
+            # Change this to += 1
+            file_num += 1
 
         out.release()
 
-    def get_filename(self, dir_in, prefix, file_num, extension, lst_index=-1):
+    @staticmethod
+    def get_filename(dir_in, prefix, file_num, extension, lst_index=-1):
         """
         Returns a filename or False if file does not exist.
         See convert() for params
@@ -80,6 +90,7 @@ class ImageToVideo(object):
         # If none of the above work, go through the whole list
         for i in range(prefix_len):
             if os.path.isfile(dir_in + prefix[i] + str(file_num) + extension):
+                print(dir_in + prefix[i] + str(file_num) + extension)
                 return dir_in + prefix[i] + str(file_num) + extension, i
 
         # If after all this nothing is found, return false
