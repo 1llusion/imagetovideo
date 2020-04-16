@@ -31,9 +31,6 @@ class ImageToVideo(object):
 
         filename, lst_index = ImageToVideo.get_filename(dir_in, prefix, file_num, extension, lst_index=lst_index)
         if not filename:
-            print("First image not found."
-                  "\nMake sure all images are numbered and start from ", first_image,
-                  "or change 'first_image' parameter.")
             return False
         img = cv2.imread(filename)
         height, width, layers = img.shape
@@ -56,7 +53,6 @@ class ImageToVideo(object):
             out.write(img)
             if delete_files:
                 os.unlink(img)
-            print("Wrote image:", filename)
 
             # Change this to += 1
             file_num += 1
@@ -90,7 +86,6 @@ class ImageToVideo(object):
         # If none of the above work, go through the whole list
         for i in range(prefix_len):
             if os.path.isfile(dir_in + prefix[i] + str(file_num) + extension):
-                print(dir_in + prefix[i] + str(file_num) + extension)
                 return dir_in + prefix[i] + str(file_num) + extension, i
 
         # If after all this nothing is found, return false
